@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="cordinc">
+    <title>Ogre Beginner for Beginner Tutorial: Opponent &amp; simple collision detection - Cordinc</title>
+    <link href="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/bootstrap.css" rel="stylesheet">
+    <link href="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/cordinc.css" rel="stylesheet">
+    <link href="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/default.css" rel="stylesheet">
+
+<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+<script type="text/javascript">
+    window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience on our website","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-bottom"};
+</script>
+
+<script type="text/javascript" src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/cookieconsent.js"></script>
+<!-- End Cookie Consent plugin -->
+
+  <link rel="stylesheet" type="text/css" href="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/dark-bottom.xml"></head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="https://www.cordinc.com/">Cordinc</a>
+        <div class="nav-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class=""><a href="https://www.cordinc.com/">Home</a></li>
+            <li class=""><a href="https://www.cordinc.com/blog">Blog</a></li>
+            <li class=""><a href="https://www.cordinc.com/about.html">About</a></li>
+            <li class="active"><a href="https://www.cordinc.com/blender">Blender</a></li>
+            <li class=""><a href="https://www.cordinc.com/projects">Projects</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+
+       <div class="cordinc-content">
+            <div class="row">
+<div class="col-lg-8">
+<h4>Ogre Beginner for Beginner Tutorial: Opponent &amp; simple collision detection</h4>
+
+<p><b>5th March 2011 – Ogre 1.8.1 &amp; Blender 2.47</b></p>
+<p>A <a href="https://www.cordinc.com/blender/tutorials/mech/5_ogre/index.html">previous tutorial</a> showed how to create a simple program allowing control of a mech model using <a href="http://www.ogre3d.org/">Ogre3D</a> (the mech model was created separately in <a href="https://www.cordinc.com/blender/tutorials/mech/4_animating/index.html">this tutorial</a>).
+ Now it is time to add a little more functionality to that program and 
+create a simple shooting game. In this tutorial we will place some other
+ objects on the screen that our mech will need to manoeuvre around. Thus
+ some collision detection is also required. To provide some competition,
+ a computer controlled opposing mech is added. Lastly, the mechs are 
+given the ability to fire lasers at each other – the first to score a 
+hit wins. Below is a video of the resulting program (unfortunately the 
+screen capture program I used has affected the framerate; it is a great 
+deal less choppy on my laptop than seen here). The final code (in a 
+Visual Studio 2008 project) can be <a href="https://www.cordinc.com/blender/tutorials/mech/6_ogre_part2/MechWalkTest2.zip">downloaded here</a>.</p>
+<p></p><center><object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/YKH0uX3gPlk?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/YKH0uX3gPlk.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></object></center><p></p>
+<p></p><ol><br>
+<li>The steps below follow on from the steps in the <a href="https://www.cordinc.com/blender/tutorials/mech/5_ogre/index.html">first tutorial</a>
+ and it is assumed the reader is familiar with them. I have not defined 
+any namespaces, so it is clear when an Ogre class is being used. I have 
+also omitted the header definitions and the assigning of values to 
+member variables in constructors from the code examples. They are in the
+ <a href="https://www.cordinc.com/blender/tutorials/mech/6_ogre_part2/MechWalkTest2.zip">downloadable code</a>.</li>
+<li>First another object will be placed on the centre of the ground. The object is a simplified version of the <a href="https://www.cordinc.com/blender/tutorials/tozeur_sculpture/index.html">Tozeur sculpture</a>
+ built in an older Blender tutorial. I have only used the top part of 
+that sculpture and removed all but the concrete material. After 
+exporting from Blender using the technique in the previous tutorial, the
+ resulting <tt>scuplture.mesh</tt> file is placed in the resources folder of the <a href="https://www.cordinc.com/blender/tutorials/mech/6_ogre_part2/MechWalkTest2.zip">downloadable project</a> (the modified <tt>.blend</tt> file is also there). The Blender export also creates a <tt>.material</tt> file, but we don’t want another of those, so just copy the materials from it into the project’s existing <tt>.material</tt> file.</li>
+<li>To place the sculpture on the centre of the plane just add the code below to <tt>MechWalkTest::createScene</tt> after the mech is placed. It can be seen that the code for placing the mech and sculpture is very similar.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 160px"><pre><br>
+    Ogre::Entity* sculptureEntity = mSceneMgr→createEntity(“Sculpture”, “Sculpture.mesh”);	<br>
+    Ogre::AxisAlignedBox sculptureBox = sculptureEntity→getBoundingBox();<br>
+    mSculptureNode = mSceneMgr→getRootSceneNode()→createChildSceneNode();<br>
+    mSculptureNode→attachObject(sculptureEntity);<br>
+    mSculptureNode→setScale(4.0f, 17.0f, 4.0f);<br>
+    mSculptureNode→setPosition(0, -sculptureBox.getCorner(Ogre::AxisAlignedBox::FAR_LEFT_BOTTOM).y*17.0f, 0);<br>
+    sculptureEntity→setCastShadows(true);<br>
+</pre></div>
+<p>In fact this is so close to how the mech is placed that if you ran the program now the sculpture would be on top of the mech. Move the mech to one of the corners by changing the mech’s <tt>setPosition</tt> call to the below.<br>
+</p><div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 60px"><pre><br>
+mMechNode→setPosition(mPlaneSize/4, -box.getCorner(Ogre::AxisAlignedBox::FAR_LEFT_BOTTOM).y, mPlaneSize/4);<br>
+</pre></div><br>
+<center><img src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ss1.jpg"></center></li><br>
+<li>Now it is time to place the opposition mech. Again, it done in a very similar manner to the player mech. Add the following code to <tt>MechWalkTest::createScene</tt>. The <tt>yaw()</tt> call makes the opposing mech face in the opposite direction to the player mech by spinning it 180 degrees around the Z axis (<tt>pitch()</tt> &amp; <tt>roll()</tt> spin around the other axes).<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 210px"><pre><br>
+    Ogre::Entity* oppEntity = mSceneMgr→createEntity(“Opponent”, “Mech.mesh”);	<br>
+    Ogre::AxisAlignedBox oppBox = oppEntity→getBoundingBox();<br>
+    mOppNode = mSceneMgr→getRootSceneNode()→createChildSceneNode();    <br>
+    mOppNode→attachObject(oppEntity);<br>
+    mOppNode→setScale(0.8f, 0.8f, 0.8f);<br>
+    mOppNode→setPosition(-mPlaneSize/4, -oppBox.getCorner(Ogre::AxisAlignedBox::FAR_LEFT_BOTTOM).y, -mPlaneSize/4);<br>
+    oppEntity→setCastShadows(true);<br>
+    mOppState = oppEntity→getAnimationState(“Walkcycle”);<br>
+    mOppState→setLoop(true);<br>
+    mOppNode→yaw(Ogre::Radian(Ogre::Math::PI));<br>
+</pre></div><br>
+If this is run now there are two identical mechs on the screen. There needs to be a way of differentiating between them. One way to do this is to make the opposing mech a different colour. The colour of an Ogre entity is determined by its material. The material on the mechs is set to the default defined in the mesh (which will be the material originally exported from Blender with the mesh). The materials are defined in the <tt>Scene.material</tt> file in the resources folder. Add a new material by adding the text below at the bottom of this file. Now the opposing mech can be made to use the new material with the method call <tt>oppEntity→setMaterialName(“OpponentMaterial”);</tt> (put this line just after the <tt>yaw</tt>). This new material is just a copy of the original mech material with the green &amp; blue settings for diffuse and specular lighting reversed. The numbers across the line are normalised red, green, blue and alpha values – <a href="http://www.ogre3d.org/docs/manual/manual_16.html">see this web page</a> for the definition of the different lines.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 250px"><pre><br>
+material OpponentMaterial<br>
+{<br>
+	receive_shadows on<br>
+	technique<br>
+	{<br>
+		pass<br>
+		{<br>
+			ambient 0.500000 0.500000 0.500000 1.000000<br>
+			diffuse 0.189712 0.159939 0.368351 1.000000<br>
+			specular 0.154000 0.144000 0.196000 1.000000 0.250000<br>
+			emissive 0.000000 0.000000 0.000000 1.000000<br>
+		}<br>
+	}<br>
+}</pre></div><br>
+<center><img src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ss2.jpg"></center></li><br>
+<li>At the moment the player’s mech can happily run straight through the sculpture and opposing mech. This just won’t do – it’s time for some collision detection. If accurate collision detection is required a specialist library like <a href="http://www.ogre3d.org/tikiwiki/Minimal+Ogre+Collision&amp;structure=Libraries"><span class="caps">MOC</span></a> or a physics library like <a href="http://bulletphysics.org/wordpress/">Bullet</a> could be used. However, for this project only a simple collision detection algorithm is needed. So the <a href="http://www.ogre3d.org/tikiwiki/Intermediate+Tutorial+2">ray query</a> code already in Ogre will be used. <br>
+Executing a ray query returns any intersecting meshes along the ray, together with the distance of the intersection from the ray origin. Our usage of it here introduces errors as the ray is not projected from the nose of the mech (just close to the nose), and even then rays from the other mech extremities would also be required to detect glancing hits. However, I think this is enough to show how to use this method and decide if a more detailed system is required in other programs. The query needs to be created at the bottom of <tt>MechWalkTest::createFrameListener</tt><br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 50px"><pre><br>
+mRaySceneQuery = mSceneMgr→createRayQuery(Ogre::Ray());<br>
+</pre></div><br>
+Also add this line to the destructor to clean up after the program.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 50px"><pre><br>
+mSceneMgr→destroyQuery(mRaySceneQuery);<br>
+</pre></div><br>
+Now the method to detect collisions is below. It creates a ray starting at <tt>position</tt> and pointing in <tt>direction</tt> checking for any meshes that intersect it that aren’t the player’s mech itself and are very close (within half the length of the mech). Thus it will return true if the player mech roughly runs into something. It is not exact and much work could be spent on improving the algorithm, but this should give an idea of how it is done.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 250px"><pre><br>
+bool MechWalkTest::isCollision(const Ogre::Vector3&amp; position, const Ogre::Vector3&amp; direction) <br>
+{<br>
+    Ogre::Ray ray(position, direction);<br>
+    mRaySceneQuery→setRay(ray);<br>
+    Ogre::RaySceneQueryResult &amp;result = mRaySceneQuery→execute();<br>
+    Ogre::RaySceneQueryResult::iterator itr;<br>
+    for (itr = result.begin(); itr != result.end(); itr++) {<br>
+        if (itr→movable→getName().compare(“Mech”)!=0 &amp;&amp; itr→distance&lt;mMechLength/2) {<br>
+            return true;<br>
+        }<br>
+    }<br>
+    return false;<br>
+}<br>
+</pre></div><br>
+To add collision detection, just before the mech is about to move check it has not collided with something and if it has prevent the forward movement. This means guarding the <tt>translate</tt> method used to move the player’s mech with a call to <tt>isCollision</tt>.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 140px"><pre><br>
+    Ogre::Vector3 direction = Ogre::Vector3(Ogre::Math::Cos(mMechDirection),0,Ogre::Math::Sin(mMechDirection));<br>
+    Ogre::Vector3 position = mMechNode→getPosition();<br>
+    if (!isCollision(position, direction)) {<br>
+        mMechNode→translate(direction * mSpeed * evt.timeSinceLastFrame * 2.5);<br>
+        checkBounds(position);<br>
+    }<br>
+</pre></div><p></p>
+</li>
+<li>Soon both mechs will move and interact with each other. The code is getting more complex and putting it all in the <tt>MechWalkTest</tt> class is becoming unwieldy. It is time to refactor. A class, <tt>Mech</tt>, is created to hold all the code related to manoeuvring the player mech. Another <tt>OpponentMech</tt> class, subclasses <tt>Mech</tt> and handles any logic specific to the opponent mech (for example making it another colour). Then instances of these classes are created in <tt>MechWalkTest</tt>. A large amount of the code changed in this step, so it is not all presented here. Instead look at the <a href="https://www.cordinc.com/blender/tutorials/mech/6_ogre_part2/MechWalkTest2.zip">final program code</a> to see what has changed.</li>
+<li>Next the opponent mech should move, or it will be a sitting duck for the player. After the refactor, the <tt>OpponentMech</tt> has an empty <tt>move</tt> method. The logic to determine how the opponent mech moves is added to this <tt>move</tt> method, using the existing manoeuvre methods on <tt>Mech</tt> (accelerate, decelerate, turnLeft, turnRight). The algorithm for movement will be very simple – it will continuously turn right at a constant speed. The speed and rate of turn (<tt>mTurnTimeSeconds</tt>) is set in the constructor and the new <tt>move</tt> method is shown below.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 210px"><pre><br>
+void OpponentMech::move(Ogre::Real time, Mech* player)<br>
+{<br>
+    mTimeToTurnSeconds+=time;<br>
+    if (mTimeToTurnSeconds&gt;mTurnTimeSeconds) {<br>
+        mTimeToTurnSeconds=0.0f;<br>
+        turnRight();<br>
+    }<br>
+    Mech::move(time);<br>
+}<br>
+</pre></div>
+<center><img src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ss3.jpg"></center></li>
+<li>To add a little competition the mechs will be able to shoot at each other. Firing a laser will display a manual object (an object constructed with <span class="caps">API</span> calls rather than through a mesh) on the screen. The laser will stay for a fraction of a second and then disappear. When the laser is drawn on the screen it will need a material so it can be seen. Add a material like the one below to the <tt>Scene.material</tt> file. Applying this material to the laser will make it bright red as the red values are set to 1 and the green and blue values are 0. Note the emissive value – this makes the laser self-illuminate (with a red light).<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 210px"><pre><br>
+material LaserMaterial<br>
+{<br>
+	receive_shadows off<br>
+	technique<br>
+	{<br>
+		pass<br>
+		{<br>
+			ambient 1.000000 0.000000 0.000000 1.000000<br>
+			diffuse 1.000000 0.000000 0.000000 1.000000<br>
+			specular 1.000000 0.000000 0.000000 1.000000 1.000000<br>
+			emissive 1.000000 0.000000 0.000000 1.000000<br>
+		}<br>
+	}<br>
+}<br>
+</pre></div>
+<p>As the mech can only shoot one laser at a time, the laser object can be created in advance and just positioned and displayed when required. In the constructor add the lines below to create the laser. Note that the object and node names are postfixed with the mech’s name. This is so the name does not clash with the opponent mech’s laser.<br>
+</p><div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 60px"><pre><br>
+mLaser =  mSceneMgr→createManualObject("laser"+name); <br>
+mLaserNode = mSceneMgr→getRootSceneNode()→createChildSceneNode("laser_node"+name); <br>
+</pre></div><br>
+The methods to display and remove the laser are below. To make sure there are not two laser shots at once, the time remaining on the current laser shot is checked. Then the laser is drawn as a line with two points (set by the <tt>position</tt> method), both projected different distances from the centre of the mech mesh in the direction the mech is heading. The laser is added to the scene by just attaching it to the laser node (which is part of the scene). Similarly, removing it is a matter of detaching it from the node and clearing the points of the line so they are not reused the next time the laser is fired.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 320px"><pre><br>
+void Mech::removeLaser() <br>
+{<br>
+    mLaser→clear();<br>
+    mLaserNode→detachObject(mLaser);<br>
+}<p></p>
+<p>void Mech::fireLaser() <br>
+{<br>
+    if (mCurrentLaserSeconds&lt;=0) {<br>
+        Ogre::Vector3 mechHeight = Ogre::Vector3(0, mEntity→getBoundingBox().getSize().y*0.5, 0);<br>
+        mLaser→begin(“LaserMaterial”, Ogre::RenderOperation::OT_LINE_LIST); <br>
+        mLaser→position(mechHeight+getPosition()<ins>getDirection()*5); <br>
+        mLaser→position(mechHeight</ins>getPosition()<ins>getDirection()<strong>50);  <br>
+        mLaser→end(); <br>
+        mLaserNode→attachObject(mLaser);<br>
+        mCurrentLaserSeconds = mLaserSeconds;<br>
+    }<br>
+}<br>
+</strong></ins></p></pre></div><strong><br>
+To determine the appropriate time to remove the laser add the code below to the top of <tt>Mech::move</tt>, as this method keeps track of time passing. <br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 120px"><pre><br>
+if (mCurrentLaserSeconds&gt;0) {<br>
+    mCurrentLaserSeconds-=time;<br>
+    if (mCurrentLaserSeconds&lt;=0) {<br>
+        removeLaser();<br>
+    }<br>
+}<br>
+</pre></div><br>
+Now the mechs can fire lasers, a way is needed to allow the player to trigger such an event. The code below added to <tt>MechWalkTest::processUnbufferedInput</tt> will fire the player’s mech laser when the space key is pressed.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 80px"><pre><br>
+if (mKeyboard→isKeyDown(<span class="caps">OIS</span>::KC_SPACE)) {<br>
+    mMech→fireLaser();<br>
+}<br>
+</pre></div><br>
+<center><img src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ss4.jpg"></center></strong></li><strong><br>
+</strong><li><strong>Right now firing a laser just draws it on the screen; the opposing mech could be hit repeatedly with no effect. Laser hits need to be detected and processed. This is done in a similar manner to collision detection. A ray is projected out along the laser line and if it intersects the other mech’s mesh within the length of the laser then a hit is scored. <br>
+</strong><div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 210px"><strong></strong><pre><strong><br>
+bool Mech::laserHits(Mech</strong> opponent) <br>
+{<br>
+    Ogre::Ray ray(getPosition(), getDirection());<br>
+    mRaySceneQuery→setRay(ray);<br>
+    Ogre::RaySceneQueryResult &amp;result = mRaySceneQuery→execute(); <br>
+    Ogre::RaySceneQueryResult::iterator itr;<br>
+    for (itr = result.begin(); itr != result.end(); itr<ins>) {<br>
+        if (itr→movable→getName().compare(opponent→getName())==0) {<br>
+            return itr→distance&lt;(mLaserLength</ins>mMechLength/2);<br>
+        }<br>
+    }<br>
+    return false;<br>
+}<br>
+</pre></div><br>
+Checking whether the laser hits the target is done when it is fired in <tt>Mech::fireLaser</tt>. For this simple game, one laser hit is fatal for a mech.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 70px"><pre><br>
+if (laserHits(opponent)) {<br>
+    opponent→mechDead();<br>
+}<br>
+</pre></div><br>
+Death is marked by setting the mech as inactive with a speed of 0 and by flipping it upside down.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 150px"><pre><br>
+void Mech::mechDead()<br>
+{<br>
+    mActive=false;<br>
+    mMechNode→translate(0.0f, mEntity→getBoundingBox().getHalfSize().y*mScale, 0.0f);<br>
+    mMechNode→pitch(Ogre::Radian(Ogre::Math::PI));<br>
+    mSpeed=0;<br>
+}<br>
+</pre></div><br>
+If a mech is dead then it should no longer be able to move. Thus all the manoeuvre methods need to check that the mech is active before doing anything – below is an example.<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 80px"><pre><br>
+void Mech::decelerate(void)<br>
+{<br>
+    if (mSpeed&gt;0 &amp;&amp; mActive) mSpeed-=mSpeedChange;<br>
+}<br>
+</pre></div><br>
+The opponent mech can be made to fire by modifying its <tt>move</tt> method as below. It now checks to see if it can successfully hit the player if it shoots and if it can, it fires – a deadly aim!<br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 200px"><pre><br>
+void OpponentMech::move(Ogre::Real time, Mech* player)<br>
+{<br>
+    if (mActive) {<br>
+        mTimeToTurnSeconds+=time;<br>
+        if (mTimeToTurnSeconds&gt;mTurnTimeSeconds) {<br>
+            mTimeToTurnSeconds=0.0f;<br>
+            turnRight();<br>
+        }<br>
+        if (laserHits(player)) {<br>
+            fireLaser(player);<br>
+        }<br>
+    }<br>
+    Mech::move(time);<br>
+}<br>
+</pre></div><p></p>
+</li>
+<li>
+<p>If one of the mechs is shot dead now it just lays there while the program continues – not a very satisfying end. Instead a text box displaying the result will be displayed once one of the mechs is inactive. The text panel is displayed as a widget like the speed and framerate boxes. The guarding <tt>if</tt> ensures that the text panel is only added to the display once.<br>
+</p><div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 200px"><pre><br>
+void MechWalkTest::showResult(Ogre::String result)<br>
+{<br>
+	if (mTrayMgr→getWidget(“result”)==0) {<br>
+		Ogre::StringVector items2;<br>
+		items2.push_back(“Result”);<br>
+		mResultPanel = mTrayMgr→createParamsPanel(OgreBites::TL_NONE, “result”, 200, items2);<br>
+		mTrayMgr→moveWidgetToTray(mResultPanel, OgreBites::TL_CENTER, 0);<br>
+		mResultPanel→setParamValue(0, result);<br>
+		mResultPanel→show();<br>
+	}<br>
+}<br>
+</pre></div><br>
+To detect if the end condition has been met, just add the code below to the top of <tt>MechWalkTest::frameRenderingQueued</tt>. <br>
+<div style="background: #DFE8DF; overflow: auto; padding: 2px; margin-bottom: 10px; margin-top: 1px; height: 120px"><pre><br>
+	if (!mMech→isActive()) {<br>
+		showResult(“You Lose!”);<br>
+	} else if (!mOpponent→isActive()) {<br>
+		showResult(“You Win!”);<br>
+	}<br>
+</pre></div><p></p>
+<center><img src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ss5.jpg"></center><p>&lt;/</p>
+<p></p></li></ol><p></p><br>
+<br>
+<p>That is it – a simple game has been created. Much more could be done, but this is enough to get you started. There are some great tutorials and examples on the <a href="http://www.ogre3d.org/tikiwiki/tiki-index.php">Ogre wiki website</a>.</p><p></p>
+</div>
+
+<div class="col-lg-2">
+</div>
+
+<div class="col-lg-2">
+    <div style="float: right; margin-right:20px">
+    <script type="text/javascript"><!--
+      google_ad_client = "pub-2790365012633754";
+      /* 120x600, created 2/9/08 */
+      google_ad_slot = "6451927782";
+      google_ad_width = 120;
+      google_ad_height = 600;
+      //-->
+      </script>
+      <script type="text/javascript" src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/show_ads.js">
+    </script>
+    </div>
+</div>
+</div>
+       </div>
+
+    </div><!-- /.container -->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="Ogre%20Beginner%20for%20Beginner%20Tutorial%20%20Opponent%20&amp;%20simple%20collision%20detection%20-%20Cordinc_files/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3637297-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+  
+</body></html>
