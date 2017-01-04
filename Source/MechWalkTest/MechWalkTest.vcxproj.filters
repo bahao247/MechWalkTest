@@ -41,5 +41,8 @@
     <ClInclude Include="OpponentMech.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MyFileFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

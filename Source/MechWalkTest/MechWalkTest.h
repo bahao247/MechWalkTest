@@ -7,6 +7,19 @@
 #include "OpponentMech.h"
 #include <stdio.h>
 #include <math.h>
+#if defined(WIN32)
+#include <windows.h>
+#include <conio.h>
+inline void sleepSomeTime() { Sleep(100); }
+#else
+#include "../common/conio.h"
+#endif
+
+#include "MyFileFactory.h"
+#include "irrKlang.h"
+using namespace irrklang;
+
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 class MechWalkTest : public BaseApplication
 {
@@ -34,6 +47,9 @@ protected:
 	Ogre::SceneNode* mSculptureNode;
 	OgreBites::ParamsPanel* mSpeedPanel;
 	OgreBites::ParamsPanel* mResultPanel;
+	// start the sound engine with default parameters
+	ISoundEngine* engine;
+	ISound* music;
 
 private:
 	bool processUnbufferedInput(const Ogre::FrameEvent& evt);

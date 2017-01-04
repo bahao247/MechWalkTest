@@ -7,10 +7,21 @@ MechWalkTest::MechWalkTest(void):
 	mOrbitIncrementRadians(Ogre::Math::PI/250),
 	mPlaneSize(200)
 {
+	engine = createIrrKlangDevice();
+
+	CMyFileFactory* factory = new CMyFileFactory();
+	engine->addFileFactory(factory);
+	factory->drop(); // we don't need it anymore, delete it
+
+	// play a single sound
+	engine->play3D("../../media/ophelia.mp3",
+		vec3df(0,0,0), true, false, true);
+	
 }
 //-------------------------------------------------------------------------------------
 MechWalkTest::~MechWalkTest(void)
 {
+	engine->drop(); // delete engine
 }
 
 void MechWalkTest::createViewports(void)
@@ -115,6 +126,10 @@ bool MechWalkTest::processUnbufferedInput(const Ogre::FrameEvent& evt)
 
 	if (mKeyboard->isKeyDown(OIS::KC_SPACE)) {
 		mMech->fireLaser(mOpponent);
+
+		// play a single sound
+		engine->play3D("../../media/explosion.wav",
+			vec3df(0,0,0), false, false, true);
 	} 
 
 	if (mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
